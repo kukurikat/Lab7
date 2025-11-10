@@ -13,9 +13,7 @@ class RunTestsCommand implements ICommand {
 
     @Override
     public void execute() {
-        System.out.println("\n========================================");
-        System.out.println("       UNIT TESTS EXECUTION");
-        System.out.println("========================================\n");
+        System.out.println("       ВИКОНАННЯ ТЕСТИ");
 
         test.VegetableTest.main(new String[]{});
         test.SaladTest.main(new String[]{});
@@ -24,9 +22,7 @@ class RunTestsCommand implements ICommand {
         test.SaladServiceTest.main(new String[]{});
         test.FileManagerTest.main(new String[]{});
 
-        System.out.println("========================================");
-        System.out.println("       ALL TESTS COMPLETED");
-        System.out.println("========================================");
+        System.out.println("       ВСІ ТЕСТИ ВИКОНАНІ");
 
         System.out.println("\nНатисніть Enter для продовження...");
         try {
