@@ -1,18 +1,18 @@
 package repository;
 
-import model.FruitVegetable;
-import model.LeafyVegetable;
-import model.RootVegetable;
-import model.Vegetable;
-
+import model.*;
+import util.Logger;
 import java.util.ArrayList;
 
 public class VegetableRepository {
     private ArrayList<Vegetable> vegetables;
+    private Logger logger;
 
     public VegetableRepository() {
         this.vegetables = new ArrayList<>();
+        this.logger = Logger.getInstance();
         initializeDefaultVegetables();
+        logger.info("VegetableRepository initialized with " + vegetables.size() + " default vegetables");
     }
 
     private void initializeDefaultVegetables() {
@@ -26,11 +26,27 @@ public class VegetableRepository {
     }
 
     public void addVegetable(Vegetable vegetable) {
-        vegetables.add(vegetable);
+        try {
+            vegetables.add(vegetable);
+            logger.info("Vegetable added: ID=" + vegetable.getId() + ", Name=" + vegetable.getName());
+        } catch (Exception e) {
+            logger.error("Failed to add vegetable: " + e.getMessage());
+        }
     }
 
     public boolean removeVegetable(int id) {
-        return vegetables.removeIf(v -> v.getId() == id);
+        try {
+            boolean removed = vegetables.removeIf(v -> v.getId() == id);
+            if (removed) {
+                logger.info("Vegetable removed: ID=" + id);
+            } else {
+                logger.warn("Attempted to remove non-existent vegetable: ID=" + id);
+            }
+            return removed;
+        } catch (Exception e) {
+            logger.error("Error removing vegetable ID=" + id + ": " + e.getMessage());
+            return false;
+        }
     }
 
     public Vegetable getVegetableById(int id) {
@@ -39,17 +55,25 @@ public class VegetableRepository {
                 return veg;
             }
         }
+        logger.warn("Vegetable not found: ID=" + id);
         return null;
     }
 
     public boolean updateVegetable(int id, Vegetable updatedVegetable) {
-        for (int i = 0; i < vegetables.size(); i++) {
-            if (vegetables.get(i).getId() == id) {
-                vegetables.set(i, updatedVegetable);
-                return true;
+        try {
+            for (int i = 0; i < vegetables.size(); i++) {
+                if (vegetables.get(i).getId() == id) {
+                    vegetables.set(i, updatedVegetable);
+                    logger.info("Vegetable updated: ID=" + id);
+                    return true;
+                }
             }
+            logger.warn("Attempted to update non-existent vegetable: ID=" + id);
+            return false;
+        } catch (Exception e) {
+            logger.error("Error updating vegetable ID=" + id + ": " + e.getMessage());
+            return false;
         }
-        return false;
     }
 
     public ArrayList<Vegetable> getAllVegetables() {
@@ -70,6 +94,8 @@ public class VegetableRepository {
     }
 
     public void clear() {
+        int count = vegetables.size();
         vegetables.clear();
+        logger.info("VegetableRepository cleared: " + count + " vegetables removed");
     }
 }

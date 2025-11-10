@@ -1,11 +1,15 @@
 package util;
 
 import model.*;
-
 import java.io.*;
 import java.util.ArrayList;
 
 public class FileManager {
+    private Logger logger;
+
+    public FileManager() {
+        this.logger = Logger.getInstance();
+    }
 
     public void saveVegetablesToFile(ArrayList<Vegetable> vegetables, String filename) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
@@ -15,8 +19,10 @@ public class FileManager {
                         veg.getVegetableType());
             }
             System.out.println("Овочі успішно збережено у файл: " + filename);
+            logger.info("Vegetables saved to file: " + filename + ", count=" + vegetables.size());
         } catch (IOException e) {
             System.out.println("Помилка при збереженні овочів: " + e.getMessage());
+            logger.critical("Failed to save vegetables to file: " + filename, e);
         }
     }
 
@@ -45,10 +51,16 @@ public class FileManager {
                 }
             }
             System.out.println("Овочі успішно завантажено з файлу: " + filename);
+            logger.info("Vegetables loaded from file: " + filename + ", count=" + vegetables.size());
         } catch (FileNotFoundException e) {
             System.out.println("Файл не знайдено: " + filename);
+            logger.warn("File not found: " + filename);
         } catch (IOException e) {
             System.out.println("Помилка при завантаженні овочів: " + e.getMessage());
+            logger.error("Error loading vegetables from file: " + filename + " - " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Помилка формату даних у файлі");
+            logger.critical("Invalid data format in file: " + filename, e);
         }
         return vegetables;
     }
@@ -62,8 +74,11 @@ public class FileManager {
                         veg.getVegetableType());
             }
             System.out.println("Салат успішно збережено у файл: " + filename);
+            logger.info("Salad saved to file: " + filename + ", ID=" + salad.getId() +
+                    ", vegetables=" + salad.getVegetableCount());
         } catch (IOException e) {
             System.out.println("Помилка при збереженні салату: " + e.getMessage());
+            logger.critical("Failed to save salad to file: " + filename, e);
         }
     }
 
@@ -76,6 +91,7 @@ public class FileManager {
                 String name = parts[1].trim();
                 Salad salad = new Salad(id, name);
 
+                int vegCount = 0;
                 while ((line = reader.readLine()) != null) {
                     parts = line.split(",");
                     if (parts.length == 5) {
@@ -94,15 +110,23 @@ public class FileManager {
                             veg = new LeafyVegetable(vegId, vegName, weight, calories);
                         }
                         salad.addVegetable(veg);
+                        vegCount++;
                     }
                 }
                 System.out.println("Салат успішно завантажено з файлу: " + filename);
+                logger.info("Salad loaded from file: " + filename + ", ID=" + id +
+                        ", vegetables=" + vegCount);
                 return salad;
             }
         } catch (FileNotFoundException e) {
             System.out.println("Файл не знайдено: " + filename);
+            logger.warn("Salad file not found: " + filename);
         } catch (IOException e) {
             System.out.println("Помилка при завантаженні салату: " + e.getMessage());
+            logger.error("Error loading salad from file: " + filename + " - " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Помилка формату даних у файлі");
+            logger.critical("Invalid data format in salad file: " + filename, e);
         }
         return null;
     }
